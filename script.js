@@ -6,94 +6,77 @@ const schedule = {
   5: ["Magyar", "Biológia", "Fizika", "Történelem", "Matematika", "Református vallás", "Német"]
 };
 
-function getStartHour(day) {
-  return (day === 4 || day === 5) ? 7 : 8;
-}
+// FIXED lesson slots
+const timeSlots = [
+  "07:00-07:50",
+  "08:00-08:50",
+  "09:00-09:50",
+  "10:00-10:50",
+  "11:10-12:00",
+  "12:10-13:00",
+  "13:10-14:00"
+];
 
-function buildTimes(startHour, count) {
-  let times = [];
-  let h = startHour;
-  let m = 0;
+// lesson start minutes
+const slotStarts = [
+  420, // 7:00
+  480, // 8:00
+  540, // 9:00
+  600, // 10:00
+  670, // 11:10
+  730, // 12:10
+  790  // 13:10
+];
 
-  for (let i = 0; i < count; i++) {
-    let start = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
-
-    m += 50;
-    if (m >= 60) {
-      h++;
-      m -= 60;
-    }
-
-    // nagyszünet
-    if (h === 10 && m === 50) {
-      m = 10;
-      h = 11;
-    }
-
-    let end = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
-    times.push(`${start}-${end}`);
-  }
-  return times;
+function dayStartsAt7(day) {
+  return day === 4 || day === 5; // Thursday, Friday
 }
 
 function update() {
   const now = new Date();
-  let day = now.getDay();
-  let hour = now.getHours();
-  let min = now.getMinutes();
-
+  let day = now.getDay(); // 1 = Monday
   if (day === 0) day = 1;
 
-  // 14:00 után -> holnap
-  if (hour >= 14) {
+  const minsNow = now.getHours() * 60 + now.getMinutes();
+
+  // after school → tomorrow
+  if (minsNow >= 840) {
     day++;
     if (day > 5) day = 1;
-
-    const startHour = getStartHour(day);
-    const lessons = schedule[day];
-    const times = buildTimes(startHour, lessons.length);
-
-    document.getElementById("nextClass").textContent = lessons[0];
-    document.getElementById("nextTime").textContent = times[0];
-    document.getElementById("afterClass").textContent = lessons[1] ?? "–";
-    document.getElementById("afterTime").textContent = times[1] ?? "–";
-    document.getElementById("progress").textContent = `0/${lessons.length} óra kész`;
+    showDay(day, 0);
     return;
   }
 
-  const startHour = getStartHour(day);
-  const lessons = schedule[day];
-  const times = buildTimes(startHour, lessons.length);
-
-  const minutesNow = hour * 60 + min;
+  const startIndex = dayStartsAt7(day) ? 0 : 1;
   let currentIndex = -1;
-  let cursor = startHour * 60;
 
-  for (let i = 0; i < lessons.length; i++) {
-    let start = cursor;
-    let end = cursor + 50;
-
-    if (cursor === 650) cursor = 670;
-
-    if (minutesNow >= start && minutesNow < end) {
-      currentIndex = i;
+  for (let i = startIndex; i < slotStarts.length; i++) {
+    if (minsNow >= slotStarts[i] && minsNow < slotStarts[i] + 50) {
+      currentIndex = i - startIndex;
       break;
     }
-    cursor = end;
   }
 
-  document.getElementById("nextClass").textContent =
-    lessons[currentIndex + 1] ?? lessons[0];
-  document.getElementById("nextTime").textContent =
-    times[currentIndex + 1] ?? times[0];
+  showDay(day, currentIndex + 1);
+}
 
-  document.getElementById("afterClass").textContent =
-    lessons[currentIndex + 2] ?? "–";
+function showDay(day, lessonIndex) {
+  const lessons = schedule[day];
+  const startIndex = dayStartsAt7(day) ? 0 : 1;
+
+  const next = lessons[lessonIndex] ?? lessons[0];
+  const after = lessons[lessonIndex + 1] ?? "–";
+
+  document.getElementById("nextClass").textContent = next;
+  document.getElementById("nextTime").textContent =
+    timeSlots[startIndex + lessonIndex] ?? "–";
+
+  document.getElementById("afterClass").textContent = after;
   document.getElementById("afterTime").textContent =
-    times[currentIndex + 2] ?? "–";
+    timeSlots[startIndex + lessonIndex + 1] ?? "–";
 
   document.getElementById("progress").textContent =
-    `${currentIndex + 1}/${lessons.length} óra kész`;
+    `${Math.max(lessonIndex, 0)}/${lessons.length} óra kész`;
 }
 
 update();

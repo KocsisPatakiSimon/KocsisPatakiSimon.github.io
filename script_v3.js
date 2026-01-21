@@ -1,55 +1,46 @@
-// ====== DAY NAMES (HU) ======
-const dayNames = {
-  1: "Hétfő",
-  2: "Kedd",
-  3: "Szerda",
-  4: "Csütörtök",
-  5: "Péntek"
-};
-
-// ====== DAILY SCHEDULE ======
 const schedule = {
-  1: [
-    { subject: "Matematika", start: 420, end: 470 },
-    { subject: "Fizika", start: 480, end: 530 },
-    { subject: "Informatika", start: 540, end: 590 },
-    { subject: "Történelem", start: 600, end: 650 },
-    { subject: "Torna", start: 670, end: 720 },
-    { subject: "Angol", start: 730, end: 780 },
-    { subject: "Biológia", start: 790, end: 840 }
+  1: [ // Hétfő
+    "Informatika",
+    "CDS biosz",
+    "Matematika",
+    "Filozófia",
+    "Román",
+    "Földrajz"
   ],
-  2: [
-    { subject: "Magyar", start: 420, end: 470 },
-    { subject: "Matematika", start: 480, end: 530 },
-    { subject: "Fizika", start: 540, end: 590 },
-    { subject: "Angol", start: 600, end: 650 },
-    { subject: "Torna", start: 670, end: 720 },
-    { subject: "Kémia", start: 730, end: 780 }
+  2: [ // Kedd
+    "Angol",
+    "Matematika",
+    "Román",
+    "Magyar",
+    "CDS",
+    "Matematika",
+    "Fizika"
   ],
-  3: [
-    { subject: "Biológia", start: 420, end: 470 },
-    { subject: "Magyar", start: 480, end: 530 },
-    { subject: "Matematika", start: 540, end: 590 },
-    { subject: "Informatika", start: 600, end: 650 },
-    { subject: "Angol", start: 670, end: 720 },
-    { subject: "Történelem", start: 730, end: 780 }
+  3: [ // Szerda
+    "Fizika",
+    "Informatika",
+    "Német",
+    "Matematika",
+    "Kommunista történelem",
+    "Informatika"
   ],
-  4: [
-    { subject: "Matematika", start: 420, end: 470 },
-    { subject: "Fizika", start: 480, end: 530 },
-    { subject: "Kémia", start: 540, end: 590 },
-    { subject: "Magyar", start: 600, end: 650 },
-    { subject: "Torna", start: 670, end: 720 },
-    { subject: "Angol", start: 730, end: 780 },
-    { subject: "Informatika", start: 790, end: 840 }
+  4: [ // Csütörtök
+    "Informatika",
+    "Kémia",
+    "Torna",
+    "Angol",
+    "Magyar",
+    "Matematika",
+    "Román"
   ],
-  5: [
-    { subject: "Magyar", start: 420, end: 470 },
-    { subject: "Történelem", start: 480, end: 530 },
-    { subject: "Matematika", start: 540, end: 590 },
-    { subject: "Angol", start: 600, end: 650 },
-    { subject: "Torna", start: 670, end: 720 },
-    { subject: "Osztályfőnöki", start: 730, end: 780 }
+  5: [ // Péntek
+    "Magyar",
+    "Biológia",
+    "Fizika",
+    "Történelem",
+    "Matematika",
+    "Református vallás",
+    "Német"
   ]
 };
 

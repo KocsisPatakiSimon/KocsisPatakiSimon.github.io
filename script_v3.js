@@ -9,7 +9,7 @@ const days = [
 
 const schedule = {
   1: ["Informatika", "CDS biológia", "Matematika", "Filozófia", "Román", "Földrajz"],
-  2: ["Angol", "Matematika", "Román", "Magyar", "CDS", "Matematika", "Fizika"],
+  2: ["Angol", "Matematika", "Román", "Magyar", "CDS Matematika", "Fizika"],
   3: ["Fizika", "Informatika", "Német", "Matematika", "Kommunista történelem", "Informatika"],
   4: ["Informatika", "Kémia", "Torna", "Angol", "Magyar", "Matematika", "Román"],
   5: ["Magyar", "Biológia", "Fizika", "Történelem", "Matematika", "Református vallás", "Német"]

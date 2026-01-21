@@ -1,115 +1,82 @@
+const days = [
+  "VASÁRNAP",
+  "HÉTFŐ",
+  "KEDD",
+  "SZERDA",
+  "CSÜTÖRTÖK",
+  "PÉNTEK"
+];
+
 const schedule = {
-  1: [ // Hétfő
-    "Informatika",
-    "CDS biosz",
-    "Matematika",
-    "Filozófia",
-    "Román",
-    "Földrajz"
-  ],
-  2: [ // Kedd
-    "Angol",
-    "Matematika",
-    "Román",
-    "Magyar",
-    "CDS",
-    "Matematika",
-    "Fizika"
-  ],
-  3: [ // Szerda
-    "Fizika",
-    "Informatika",
-    "Német",
-    "Matematika",
-    "Kommunista történelem",
-    "Informatika"
-  ],
-  4: [ // Csütörtök
-    "Informatika",
-    "Kémia",
-    "Torna",
-    "Angol",
-    "Magyar",
-    "Matematika",
-    "Román"
-  ],
-  5: [ // Péntek
-    "Magyar",
-    "Biológia",
-    "Fizika",
-    "Történelem",
-    "Matematika",
-    "Református vallás",
-    "Német"
-  ]
+  1: ["Informatika", "CDS biológia", "Matematika", "Filozófia", "Román", "Földrajz"],
+  2: ["Angol", "Matematika", "Román", "Magyar", "CDS", "Matematika", "Fizika"],
+  3: ["Fizika", "Informatika", "Német", "Matematika", "Kommunista történelem", "Informatika"],
+  4: ["Informatika", "Kémia", "Torna", "Angol", "Magyar", "Matematika", "Román"],
+  5: ["Magyar", "Biológia", "Fizika", "Történelem", "Matematika", "Református vallás", "Német"]
 };
 
-// ====== HELPERS ======
-function minutesNow() {
-  const d = new Date();
-  return d.getHours() * 60 + d.getMinutes();
+const slotStarts = [420, 480, 540, 600, 670, 730, 790];
+const slotEnds   = [470, 530, 590, 650, 720, 780, 840];
+
+function startsAt7(day) {
+  return day === 4 || day === 5; // csütörtök, péntek
 }
 
-function getNextSchoolDay(day) {
-  let next = day + 1;
-  if (next === 6 || next === 7) return 1;
-  return next;
-}
+function update() {
+  const now = new Date();
+  let day = now.getDay();
+  if (day === 0) day = 1;
 
-function isDayFinished(periods, now) {
-  return now > periods[periods.length - 1].end;
-}
+  const minutes = now.getHours() * 60 + now.getMinutes();
 
-// ====== MAIN ======
-function render() {
-  const now = minutesNow();
-  let day = new Date().getDay(); // 0–6
-
-  // weekend → Monday
-  if (day === 0 || day === 6) day = 1;
-
-  let periods = schedule[day];
-
-  // after last class → next day
-  if (isDayFinished(periods, now)) {
-    day = getNextSchoolDay(day);
-    periods = schedule[day];
+  // iskola után → holnap
+  if (minutes >= 840) {
+    day++;
+    if (day > 5) day = 1;
   }
 
-  // Title
-  document.getElementById("day").innerText = dayNames[day];
+  document.getElementById("dayName").textContent = days[day];
+
+  const lessons = schedule[day];
+  const offset = startsAt7(day) ? 0 : 1;
+
+  let active = -1;
+  let breakNow = false;
+
+  for (let i = offset; i < slotStarts.length; i++) {
+    if (minutes >= slotStarts[i] && minutes < slotEnds[i]) {
+      active = i - offset;
+    }
+  }
+
+  // nagyszünet
+  if (minutes >= 650 && minutes < 670) breakNow = true;
 
   const container = document.getElementById("periods");
   container.innerHTML = "";
 
-  let done = 0;
-  let activeFound = false;
-
-  periods.forEach((p) => {
+  lessons.forEach((lesson, i) => {
     const div = document.createElement("div");
     div.classList.add("period");
+    div.textContent = lesson;
 
-    if (now >= p.start && now <= p.end) {
-      div.classList.add("active"); // green, bigger
-      activeFound = true;
-    } else if (!activeFound && now < p.start) {
-      div.classList.add("next"); // yellow
-      activeFound = true;
-    } else if (now > p.end) {
-      div.classList.add("done"); // grey
-      done++;
+    if (breakNow) {
+      if (i === active + 1) div.classList.add("next");
+      else if (i <= active) div.classList.add("done");
+      else div.classList.add("future");
     } else {
-      div.classList.add("future"); // red
+      if (i < active) div.classList.add("done");
+      else if (i === active) div.classList.add("active");
+      else if (i === active + 1) div.classList.add("next");
+      else div.classList.add("future");
     }
 
-    div.innerText = p.subject;
     container.appendChild(div);
   });
 
-  document.getElementById("counter").innerText =
-    `${done}/${periods.length}`;
+  document.getElementById("counter").textContent =
+    `${Math.max(active, 0)}/${lessons.length}`;
 }
 
-// update every 30s
-render();
-setInterval(render, 30000);
+update();
+setInterval(update, 60000);

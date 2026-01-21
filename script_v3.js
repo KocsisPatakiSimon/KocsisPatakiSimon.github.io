@@ -1,3 +1,12 @@
+const days = [
+  "VASÁRNAP",
+  "HÉTFŐ",
+  "KEDD",
+  "SZERDA",
+  "CSÜTÖRTÖK",
+  "PÉNTEK"
+];
+
 const schedule = {
   1: ["Informatika", "CDS biológia", "Matematika", "Filozófia", "Román", "Földrajz"],
   2: ["Angol", "Matematika", "Román", "Magyar", "CDS", "Matematika", "Fizika"],
@@ -6,77 +15,67 @@ const schedule = {
   5: ["Magyar", "Biológia", "Fizika", "Történelem", "Matematika", "Református vallás", "Német"]
 };
 
-// FIXED lesson slots
-const timeSlots = [
-  "07:00-07:50",
-  "08:00-08:50",
-  "09:00-09:50",
-  "10:00-10:50",
-  "11:10-12:00",
-  "12:10-13:00",
-  "13:10-14:00"
-];
+const slotStarts = [420, 480, 540, 600, 670, 730, 790];
+const slotEnds   = [470, 530, 590, 650, 720, 780, 840];
 
-// lesson start minutes
-const slotStarts = [
-  420, // 7:00
-  480, // 8:00
-  540, // 9:00
-  600, // 10:00
-  670, // 11:10
-  730, // 12:10
-  790  // 13:10
-];
-
-function dayStartsAt7(day) {
-  return day === 4 || day === 5; // Thursday, Friday
+function startsAt7(day) {
+  return day === 4 || day === 5; // csütörtök, péntek
 }
 
 function update() {
   const now = new Date();
-  let day = now.getDay(); // 1 = Monday
+  let day = now.getDay();
   if (day === 0) day = 1;
 
-  const minsNow = now.getHours() * 60 + now.getMinutes();
+  const minutes = now.getHours() * 60 + now.getMinutes();
 
-  // after school → tomorrow
-  if (minsNow >= 840) {
+  // iskola után → holnap
+  if (minutes >= 840) {
     day++;
     if (day > 5) day = 1;
-    showDay(day, 0);
-    return;
   }
 
-  const startIndex = dayStartsAt7(day) ? 0 : 1;
-  let currentIndex = -1;
+  document.getElementById("dayName").textContent = days[day];
 
-  for (let i = startIndex; i < slotStarts.length; i++) {
-    if (minsNow >= slotStarts[i] && minsNow < slotStarts[i] + 50) {
-      currentIndex = i - startIndex;
-      break;
+  const lessons = schedule[day];
+  const offset = startsAt7(day) ? 0 : 1;
+
+  let active = -1;
+  let breakNow = false;
+
+  for (let i = offset; i < slotStarts.length; i++) {
+    if (minutes >= slotStarts[i] && minutes < slotEnds[i]) {
+      active = i - offset;
     }
   }
 
-  showDay(day, currentIndex + 1);
-}
+  // nagyszünet
+  if (minutes >= 650 && minutes < 670) breakNow = true;
 
-function showDay(day, lessonIndex) {
-  const lessons = schedule[day];
-  const startIndex = dayStartsAt7(day) ? 0 : 1;
+  const container = document.getElementById("periods");
+  container.innerHTML = "";
 
-  const next = lessons[lessonIndex] ?? lessons[0];
-  const after = lessons[lessonIndex + 1] ?? "–";
+  lessons.forEach((lesson, i) => {
+    const div = document.createElement("div");
+    div.classList.add("period");
+    div.textContent = lesson;
 
-  document.getElementById("nextClass").textContent = next;
-  document.getElementById("nextTime").textContent =
-    timeSlots[startIndex + lessonIndex] ?? "–";
+    if (breakNow) {
+      if (i === active + 1) div.classList.add("next");
+      else if (i <= active) div.classList.add("done");
+      else div.classList.add("future");
+    } else {
+      if (i < active) div.classList.add("done");
+      else if (i === active) div.classList.add("active");
+      else if (i === active + 1) div.classList.add("next");
+      else div.classList.add("future");
+    }
 
-  document.getElementById("afterClass").textContent = after;
-  document.getElementById("afterTime").textContent =
-    timeSlots[startIndex + lessonIndex + 1] ?? "–";
+    container.appendChild(div);
+  });
 
-  document.getElementById("progress").textContent =
-    `${Math.max(lessonIndex, 0)}/${lessons.length} óra kész`;
+  document.getElementById("counter").textContent =
+    `${Math.max(active, 0)}/${lessons.length}`;
 }
 
 update();

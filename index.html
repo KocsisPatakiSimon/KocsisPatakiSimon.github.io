@@ -1,25 +1,19 @@
 <!DOCTYPE html>
-<html lang="hu">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Órarend</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Schedule</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <div class="container">
-    <h1>Következő óra:</h1>
-    <div id="nextClass" class="subject">–</div>
-    <div id="nextTime" class="time">–</div>
+  <div class="day" id="dayName">DAY</div>
 
-    <h2>azután:</h2>
-    <div id="afterClass" class="subject">–</div>
-    <div id="afterTime" class="time">–</div>
+  <div class="periods" id="periods"></div>
 
-    <div id="progress" class="progress">–</div>
-  </div>
+  <div class="counter" id="counter">0/6</div>
 
-  <script src="script_v3.js"></script>
+  <script src="script_final.js"></script>
 </body>
 </html>

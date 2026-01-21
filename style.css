@@ -1,35 +1,57 @@
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background: white;
-}
-
-.container {
-  min-height: 100vh;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #ffffff;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
-  text-align: center;
 }
 
-h1, h2 {
-  font-weight: normal;
-  margin: 10px 0;
-}
-
-.subject {
-  font-size: 36px;
-  font-weight: bold;
-  margin: 5px 0;
-}
-
-.time {
+.day {
+  margin-top: 40px;
   font-size: 28px;
-  margin-bottom: 20px;
+  font-weight: 600;
 }
 
-.progress {
+.periods {
   margin-top: 30px;
+  width: 85%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.period {
+  padding: 14px;
+  border-radius: 14px;
+  text-align: center;
+  font-size: 18px;
+  transition: all 0.3s ease;
+}
+
+/* STATES */
+.active {
+  background: #3cb371;
+  color: white;
   font-size: 22px;
+}
+
+.next {
+  background: #f2c94c;
+  color: black;
+}
+
+.future {
+  background: #eb5757;
+  color: white;
+}
+
+.done {
+  background: #e0e0e0;
+  color: #777;
+}
+
+.counter {
+  margin: 40px 0;
+  font-size: 20px;
 }

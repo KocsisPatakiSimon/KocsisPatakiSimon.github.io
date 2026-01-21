@@ -1,82 +1,124 @@
-const days = [
-  "VASÁRNAP",
-  "HÉTFŐ",
-  "KEDD",
-  "SZERDA",
-  "CSÜTÖRTÖK",
-  "PÉNTEK"
-];
-
-const schedule = {
-  1: ["Informatika", "CDS biológia", "Matematika", "Filozófia", "Román", "Földrajz"],
-  2: ["Angol", "Matematika", "Román", "Magyar", "CDS", "Matematika", "Fizika"],
-  3: ["Fizika", "Informatika", "Német", "Matematika", "Kommunista történelem", "Informatika"],
-  4: ["Informatika", "Kémia", "Torna", "Angol", "Magyar", "Matematika", "Román"],
-  5: ["Magyar", "Biológia", "Fizika", "Történelem", "Matematika", "Református vallás", "Német"]
+// ====== DAY NAMES (HU) ======
+const dayNames = {
+  1: "Hétfő",
+  2: "Kedd",
+  3: "Szerda",
+  4: "Csütörtök",
+  5: "Péntek"
 };
 
-const slotStarts = [420, 480, 540, 600, 670, 730, 790];
-const slotEnds   = [470, 530, 590, 650, 720, 780, 840];
+// ====== DAILY SCHEDULE ======
+const schedule = {
+  1: [
+    { subject: "Matematika", start: 420, end: 470 },
+    { subject: "Fizika", start: 480, end: 530 },
+    { subject: "Informatika", start: 540, end: 590 },
+    { subject: "Történelem", start: 600, end: 650 },
+    { subject: "Torna", start: 670, end: 720 },
+    { subject: "Angol", start: 730, end: 780 },
+    { subject: "Biológia", start: 790, end: 840 }
+  ],
+  2: [
+    { subject: "Magyar", start: 420, end: 470 },
+    { subject: "Matematika", start: 480, end: 530 },
+    { subject: "Fizika", start: 540, end: 590 },
+    { subject: "Angol", start: 600, end: 650 },
+    { subject: "Torna", start: 670, end: 720 },
+    { subject: "Kémia", start: 730, end: 780 }
+  ],
+  3: [
+    { subject: "Biológia", start: 420, end: 470 },
+    { subject: "Magyar", start: 480, end: 530 },
+    { subject: "Matematika", start: 540, end: 590 },
+    { subject: "Informatika", start: 600, end: 650 },
+    { subject: "Angol", start: 670, end: 720 },
+    { subject: "Történelem", start: 730, end: 780 }
+  ],
+  4: [
+    { subject: "Matematika", start: 420, end: 470 },
+    { subject: "Fizika", start: 480, end: 530 },
+    { subject: "Kémia", start: 540, end: 590 },
+    { subject: "Magyar", start: 600, end: 650 },
+    { subject: "Torna", start: 670, end: 720 },
+    { subject: "Angol", start: 730, end: 780 },
+    { subject: "Informatika", start: 790, end: 840 }
+  ],
+  5: [
+    { subject: "Magyar", start: 420, end: 470 },
+    { subject: "Történelem", start: 480, end: 530 },
+    { subject: "Matematika", start: 540, end: 590 },
+    { subject: "Angol", start: 600, end: 650 },
+    { subject: "Torna", start: 670, end: 720 },
+    { subject: "Osztályfőnöki", start: 730, end: 780 }
+  ]
+};
 
-function startsAt7(day) {
-  return day === 4 || day === 5; // csütörtök, péntek
+// ====== HELPERS ======
+function minutesNow() {
+  const d = new Date();
+  return d.getHours() * 60 + d.getMinutes();
 }
 
-function update() {
-  const now = new Date();
-  let day = now.getDay();
-  if (day === 0) day = 1;
+function getNextSchoolDay(day) {
+  let next = day + 1;
+  if (next === 6 || next === 7) return 1;
+  return next;
+}
 
-  const minutes = now.getHours() * 60 + now.getMinutes();
+function isDayFinished(periods, now) {
+  return now > periods[periods.length - 1].end;
+}
 
-  // iskola után → holnap
-  if (minutes >= 840) {
-    day++;
-    if (day > 5) day = 1;
+// ====== MAIN ======
+function render() {
+  const now = minutesNow();
+  let day = new Date().getDay(); // 0–6
+
+  // weekend → Monday
+  if (day === 0 || day === 6) day = 1;
+
+  let periods = schedule[day];
+
+  // after last class → next day
+  if (isDayFinished(periods, now)) {
+    day = getNextSchoolDay(day);
+    periods = schedule[day];
   }
 
-  document.getElementById("dayName").textContent = days[day];
-
-  const lessons = schedule[day];
-  const offset = startsAt7(day) ? 0 : 1;
-
-  let active = -1;
-  let breakNow = false;
-
-  for (let i = offset; i < slotStarts.length; i++) {
-    if (minutes >= slotStarts[i] && minutes < slotEnds[i]) {
-      active = i - offset;
-    }
-  }
-
-  // nagyszünet
-  if (minutes >= 650 && minutes < 670) breakNow = true;
+  // Title
+  document.getElementById("day").innerText = dayNames[day];
 
   const container = document.getElementById("periods");
   container.innerHTML = "";
 
-  lessons.forEach((lesson, i) => {
+  let done = 0;
+  let activeFound = false;
+
+  periods.forEach((p) => {
     const div = document.createElement("div");
     div.classList.add("period");
-    div.textContent = lesson;
 
-    if (breakNow) {
-      if (i === active + 1) div.classList.add("next");
-      else if (i <= active) div.classList.add("done");
-      else div.classList.add("future");
+    if (now >= p.start && now <= p.end) {
+      div.classList.add("active"); // green, bigger
+      activeFound = true;
+    } else if (!activeFound && now < p.start) {
+      div.classList.add("next"); // yellow
+      activeFound = true;
+    } else if (now > p.end) {
+      div.classList.add("done"); // grey
+      done++;
     } else {
-      if (i < active) div.classList.add("done");
-      else if (i === active) div.classList.add("active");
-      else if (i === active + 1) div.classList.add("next");
-      else div.classList.add("future");
+      div.classList.add("future"); // red
     }
 
+    div.innerText = p.subject;
     container.appendChild(div);
   });
 
-  document.getElementById("counter").textContent =
-    `${Math.max(active, 0)}/${lessons.length}`;
+  document.getElementById("counter").innerText =
+    `${done}/${periods.length}`;
 }
 
-update();
-setInterval(update, 60000);
+// update every 30s
+render();
+setInterval(render, 30000);
